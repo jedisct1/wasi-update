@@ -1,5 +1,5 @@
-/target
 *~
-zig-cache
+/target
 Cargo.lock
-
+byte-array-literals/target
+zig-cache
