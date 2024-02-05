@@ -21,3 +21,10 @@ default = ["command"]
 reactor = []
 command = []
 
+[profile.release]
+codegen-units = 1
+incremental = false
+panic = "abort"
+lto = "fat"
+strip = "debuginfo"
+opt-level = "s"
