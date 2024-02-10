@@ -38,7 +38,7 @@ fn is_command(module: &Module) -> bool {
 
 fn main() {
     let input_file = "/tmp/testapp.wasm";
-    let output_file = "/tmp/testapp.component";
+    let output_file = "/tmp/testapp.component.wasm";
     let module_bin = std::fs::read(input_file).unwrap();
     let module = {
         let mut reader = Cursor::new(&module_bin);
@@ -47,13 +47,15 @@ fn main() {
     let is_command = is_command(&module);
 
     let adapter = include_bytes!("wasi_snapshot_preview1.command.wasm");
+    let adapter2 = include_bytes!("wasi-compat-adapter.wasm");
+
     let component_bin = ComponentEncoder::default()
         .module(&module_bin)
         .unwrap()
         .realloc_via_memory_grow(true)
         .adapter("wasi_snapshot_preview1", adapter)
         .unwrap()
-        .adapter("wasi_snapshot_preview1", adapter)
+        .adapter("wasi_snapshot_preview3", adapter2)
         .unwrap()
         .validate(true)
         .encode()
