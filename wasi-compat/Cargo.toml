@@ -1,0 +1,11 @@
+[package]
+name = "wasi-compat"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+clap = { version = "4", features = ["std", "cargo", "wrap_help", "string"] }
+ct-codecs = "1"
+log = "0.4"
+thiserror = "1"
+wit-component = "0.20"
