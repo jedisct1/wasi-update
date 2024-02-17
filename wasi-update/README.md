@@ -1,7 +1,7 @@
 ![WASI Update](logo.png)
 ========================
 
-A simple tool to convert a WebAssembly module to a WASI component (component model, WASI-preview2).
+A simple tool to convert a WebAssembly module (`wasm32-wasi`, `wasm32-freestanding`) to a WASI component (component model, WASI-preview2).
 
 # Installation
 
