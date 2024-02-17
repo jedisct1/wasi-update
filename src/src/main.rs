@@ -31,39 +31,41 @@ fn guess_module_type(module: &Module) -> Result<ModuleType, Error> {
     let mut has_start = false;
     let mut has_wasi_core_import = false;
     for section in &module.sections {
-        if let Section::Standard(section) = section {
-            if section.id() == SectionId::Export {
-                let payload = section.payload();
-                let mut reader = Cursor::new(payload);
-                let count = varint::get32(&mut reader)?;
-                for _ in 0..count {
-                    let name = varint::get_slice(&mut reader)?;
-                    let name = std::str::from_utf8(&name)?;
-                    let kind = varint::get7(&mut reader)?;
-                    let _id = varint::get32(&mut reader)?;
-                    if kind == 0 {
-                        println!("Exported:\t{}", name);
-                        if name == "_start" {
-                            has_start = true;
-                        }
+        let section = match section {
+            Section::Standard(section) => section,
+            _ => continue,
+        };
+        if section.id() == SectionId::Export {
+            let payload = section.payload();
+            let mut reader = Cursor::new(payload);
+            let count = varint::get32(&mut reader)?;
+            for _ in 0..count {
+                let name = varint::get_slice(&mut reader)?;
+                let name = std::str::from_utf8(&name)?;
+                let kind = varint::get7(&mut reader)?;
+                let _id = varint::get32(&mut reader)?;
+                if kind == 0 {
+                    println!("Exported:\t{}", name);
+                    if name == "_start" {
+                        has_start = true;
                     }
                 }
-            } else if section.id() == SectionId::Import {
-                let payload = section.payload();
-                let mut reader = Cursor::new(payload);
-                let count = varint::get32(&mut reader)?;
-                for _ in 0..count {
-                    let module_name = varint::get_slice(&mut reader)?;
-                    let module_name = std::str::from_utf8(&module_name)?;
-                    let name = varint::get_slice(&mut reader)?;
-                    let name = std::str::from_utf8(&name)?;
-                    let kind = varint::get7(&mut reader)?;
-                    let _id = varint::get32(&mut reader)?;
-                    if kind == 0 {
-                        println!("Imported:\t{}#{}", module_name, name);
-                        if module_name == "wasi_snapshot_preview1" {
-                            has_wasi_core_import = true;
-                        }
+            }
+        } else if section.id() == SectionId::Import {
+            let payload = section.payload();
+            let mut reader = Cursor::new(payload);
+            let count = varint::get32(&mut reader)?;
+            for _ in 0..count {
+                let module_name = varint::get_slice(&mut reader)?;
+                let module_name = std::str::from_utf8(&module_name)?;
+                let name = varint::get_slice(&mut reader)?;
+                let name = std::str::from_utf8(&name)?;
+                let kind = varint::get7(&mut reader)?;
+                let _id = varint::get32(&mut reader)?;
+                if kind == 0 {
+                    println!("Imported:\t{}#{}", module_name, name);
+                    if module_name == "wasi_snapshot_preview1" {
+                        has_wasi_core_import = true;
                     }
                 }
             }
