@@ -1,4 +1,4 @@
-bin/wasi-update: .ts src/src/precomp/wasi_snapshot_preview1.command.wasm src/src/precomp/wasi_snapshot_preview1.reactor.wasm src/Cargo.toml src/src/main.rs
+bin/wasi-update: src/src/precomp/wasi_snapshot_preview1.command.wasm src/src/precomp/wasi_snapshot_preview1.reactor.wasm src/Cargo.toml src/src/main.rs
 	cd src && cargo build --release $$CARGO_FLAGS
 	@ echo
 	@ install -d bin
@@ -21,6 +21,6 @@ clean:
 	rm -fr adapters/target
 	rm -fr src/target
 	rm -f bin/wasi-update
-	touch .ts
+	touch */Cargo.toml
 
 	

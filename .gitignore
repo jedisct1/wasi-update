@@ -1,5 +1,4 @@
 *~
-.ts
 /target
 Cargo.lock
 adapters/byte-array-literals/target
