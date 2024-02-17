@@ -18,3 +18,27 @@ ct-codecs = "1"
 log = "0.4"
 thiserror = "1"
 wit-component = "0.200"
+
+[package.metadata.deb]
+extended-description = """\
+A simple tool to convert a WebAssembly module to a WASI component."""
+assets = [
+    [
+        "target/release/wasi-update",
+        "usr/bin/",
+        "755",
+    ],
+    [
+        "README.md",
+        "usr/share/doc/wasi-update/README.md",
+        "644",
+    ],
+]
+section = "devel"
+depends = "$auto"
+priority = "optional"
+
+[profile.release]
+codegen-units = 1
+incremental = false
+panic = "abort"
