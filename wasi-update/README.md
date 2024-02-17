@@ -11,6 +11,12 @@ Install Rust, and type:
 cargo install wasi-update
 ```
 
+or clone the repository and type:
+
+```sh
+make
+```
+
 # Usage
 
 ```text
