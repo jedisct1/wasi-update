@@ -6,6 +6,6 @@ adapters/byte-array-literals/target
 adapters/target
 bin/wasi-update
 byte-array-literals/target
-wasi-update/.vscode
-wasi-update/target
+src/.vscode
+src/target
 zig-cache
