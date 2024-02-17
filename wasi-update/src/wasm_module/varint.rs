@@ -49,6 +49,7 @@ pub fn put(writer: &mut impl Write, mut v: u64) -> Result<(), WSError> {
     }
 }
 
+#[allow(dead_code)]
 pub fn put_slice(writer: &mut impl Write, bytes: impl AsRef<[u8]>) -> Result<(), WSError> {
     let bytes = bytes.as_ref();
     put(writer, bytes.len() as _)?;

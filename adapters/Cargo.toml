@@ -6,13 +6,15 @@ version = "0.1.0"
 publish = false
 
 [dependencies]
-wasi = { version = "0.11.0", default-features = false }
-wit-bindgen = { version = "0.16.0", default-features = false, features = ["macros"] }
+wasi = { version = "=0.11.0", default-features = false }
+wit-bindgen = { version = "0.16.0", default-features = false, features = [
+    "macros",
+] }
 byte-array-literals = { path = "byte-array-literals" }
 
 [build-dependencies]
-wasm-encoder = "0.41.0"
-object = { version = "0.32", default-features = false, features = ["archive"] } 
+wasm-encoder = "0.200"
+object = { version = "0.32", default-features = false, features = ["archive"] }
 
 [lib]
 test = false

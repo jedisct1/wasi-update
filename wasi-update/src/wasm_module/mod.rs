@@ -3,7 +3,7 @@ pub(crate) mod varint;
 use crate::error::*;
 
 use log::*;
-use std::fmt::{self, Write as _};
+use std::fmt::{self};
 use std::fs::File;
 use std::io::{self, prelude::*, BufReader, BufWriter};
 use std::path::Path;
@@ -152,6 +152,7 @@ impl CustomSection {
     /// Return the custom section as an array of bytes.
     ///
     /// This includes the data itself, but also the size and name of the custom section.
+    #[allow(dead_code)]
     pub fn outer_payload(&self) -> Result<Vec<u8>, WSError> {
         let mut writer = io::Cursor::new(vec![]);
         varint::put(&mut writer, self.name.len() as _)?;
@@ -249,6 +250,7 @@ impl Section {
     }
 
     /// Serialize a section.
+    #[allow(dead_code)]
     pub fn serialize(&self, writer: &mut impl Write) -> Result<(), WSError> {
         let outer_payload;
         let payload = match self {
@@ -299,12 +301,14 @@ impl Module {
     }
 
     /// Deserialize a WebAssembly module from the given file.
+    #[allow(dead_code)]
     pub fn deserialize_from_file(file: impl AsRef<Path>) -> Result<Self, WSError> {
         let fp = File::open(file.as_ref())?;
         Self::deserialize(&mut BufReader::new(fp))
     }
 
     /// Serialize a WebAssembly module to the given writer.
+    #[allow(dead_code)]
     pub fn serialize(&self, writer: &mut impl Write) -> Result<(), WSError> {
         writer.write_all(&self.header)?;
         for section in &self.sections {
@@ -314,6 +318,7 @@ impl Module {
     }
 
     /// Serialize a WebAssembly module to the given file.
+    #[allow(dead_code)]
     pub fn serialize_to_file(&self, file: impl AsRef<Path>) -> Result<(), WSError> {
         let fp = File::create(file.as_ref())?;
         self.serialize(&mut BufWriter::new(fp))

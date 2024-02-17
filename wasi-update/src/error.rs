@@ -1,8 +1,5 @@
 #[derive(Debug, thiserror::Error)]
 pub enum WSError {
-    #[error("Internal error: [{0}]")]
-    InternalError(String),
-
     #[error("Unsupported module type")]
     UnsupportedModuleType,
 

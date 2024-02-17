@@ -1,9 +1,10 @@
 [package]
-name = "wasi-compat"
+name = "wasi-update"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+anyhow = "1.0.79"
 clap = { version = "4", features = ["std", "cargo", "wrap_help", "string"] }
 ct-codecs = "1"
 log = "0.4"

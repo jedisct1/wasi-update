@@ -3,3 +3,8 @@
 Cargo.lock
 byte-array-literals/target
 zig-cache
+zig-cache
+wasi-update/target
+adapters/byte-array-literals/target
+adapters/target
+wasi-update/.vscode
