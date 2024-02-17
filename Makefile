@@ -1,7 +1,7 @@
 bin/wasi-update: .ts wasi-update/src/precomp/wasi_snapshot_preview1.command.wasm wasi-update/src/precomp/wasi_snapshot_preview1.reactor.wasm wasi-update/Cargo.toml wasi-update/src/main.rs
 	cd wasi-update && cargo build --release $$CARGO_FLAGS
 	install -d bin
-	install -s -C wasi-update/target/release/wasi-update bin/wasi-update
+	install -s wasi-update/target/release/wasi-update bin/wasi-update
 	ls -l bin/wasi-update
 	bin/wasi-update --help
 
