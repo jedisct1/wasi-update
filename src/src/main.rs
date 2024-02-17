@@ -66,8 +66,6 @@ fn guess_module_type(module: &Module) -> Result<ModuleType, Error> {
                         }
                     }
                 }
-            } else {
-                continue;
             }
         }
     }
