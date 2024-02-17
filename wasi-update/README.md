@@ -3,9 +3,13 @@
 
 A simple tool to convert a WebAssembly module to a WASI component (component model, WASI-preview2).
 
-# Compilation
+# Installation
 
-Type `make`. Requires Rust to be installed.
+Install Rust, and type:
+
+```sh
+cargo install wasi-update
+```
 
 # Usage
 
