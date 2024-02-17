@@ -5,7 +5,8 @@ edition = "2021"
 authors = ["Frank Denis <github@pureftpd.org>"]
 description = "A tool to convert a WebAssembly module to a WASI component"
 license = "Apache-2.0 WITH LLVM-exception"
-keywords = ["wit", "webassembly", "wasi", "component", "model", "preview2"]
+keywords = ["wit", "webassembly", "wasi", "component", "preview2"]
+categories = ["wasm", "web-programming"]
 
 [dependencies]
 anyhow = "1.0.79"
