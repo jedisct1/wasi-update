@@ -171,14 +171,8 @@ impl SectionLike for CustomSection {
         &self.payload
     }
 
-    fn display(&self, verbose: bool) -> String {
-        if !verbose {
-            return format!("custom section: [{}]", self.name());
-        }
-
-        match self.name() {
-            _ => format!("custom section: [{}]", self.name()),
-        }
+    fn display(&self, _verbose: bool) -> String {
+        format!("custom section: [{}]", self.name())
     }
 }
 

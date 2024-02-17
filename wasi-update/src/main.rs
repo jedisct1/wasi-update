@@ -10,13 +10,24 @@ use std::{
 use wasm_module::*;
 use wit_component::*;
 
+#[derive(Debug, Copy, Clone, PartialEq)]
 enum ModuleType {
     Freestanding,
     Command,
     Reactor,
 }
 
-fn guess_module_type(module: &Module) -> ModuleType {
+impl std::fmt::Display for ModuleType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ModuleType::Freestanding => write!(f, "Freestanding"),
+            ModuleType::Command => write!(f, "WASI-core command"),
+            ModuleType::Reactor => write!(f, "WASI-core reactor"),
+        }
+    }
+}
+
+fn guess_module_type(module: &Module) -> Result<ModuleType, Error> {
     let mut has_start = false;
     let mut has_wasi_core_import = false;
     for section in &module.sections {
@@ -24,63 +35,49 @@ fn guess_module_type(module: &Module) -> ModuleType {
             if section.id() == SectionId::Export {
                 let payload = section.payload();
                 let mut reader = Cursor::new(payload);
-                let count = varint::get32(&mut reader).unwrap();
+                let count = varint::get32(&mut reader)?;
                 for _ in 0..count {
-                    let name = varint::get_slice(&mut reader).unwrap();
-                    let name = std::str::from_utf8(&name).unwrap();
-                    let kind = varint::get7(&mut reader).unwrap();
-                    if kind != 0 {
-                        continue;
-                    }
-                    let id = varint::get32(&mut reader).unwrap();
-                    if id != 8 {
-                        continue;
-                    }
-                    if name == "_start" {
-                        has_start = true;
+                    let name = varint::get_slice(&mut reader)?;
+                    let name = std::str::from_utf8(&name)?;
+                    let kind = varint::get7(&mut reader)?;
+                    let _id = varint::get32(&mut reader)?;
+                    if kind == 0 {
+                        println!("Exported:\t{}", name);
+                        if name == "_start" {
+                            has_start = true;
+                        }
                     }
                 }
             } else if section.id() == SectionId::Import {
                 let payload = section.payload();
                 let mut reader = Cursor::new(payload);
-                let count = varint::get32(&mut reader).unwrap();
-                print!("import count: {}", count);
+                let count = varint::get32(&mut reader)?;
                 for _ in 0..count {
-                    let module_name = varint::get_slice(&mut reader).unwrap();
-                    println!("imported: {}", std::str::from_utf8(&module_name).unwrap());
-                    let name = varint::get_slice(&mut reader).unwrap();
-                    println!("imported: {}", std::str::from_utf8(&name).unwrap());
-                    let name = std::str::from_utf8(&name).unwrap();
-                    let kind = varint::get7(&mut reader).unwrap();
-                    if kind != 0 {
-                        continue;
-                    }
-                    let id = varint::get32(&mut reader).unwrap();
-                    if id != 8 {
-                        continue;
-                    }
-                    println!("imported: {}", name);
-                    if name == "_start" {
-                        return ModuleType::Command;
-                    }
-                    if module_name == b"wasi_snapshot_preview1" {
-                        has_wasi_core_import = true;
+                    let module_name = varint::get_slice(&mut reader)?;
+                    let module_name = std::str::from_utf8(&module_name)?;
+                    let name = varint::get_slice(&mut reader)?;
+                    let name = std::str::from_utf8(&name)?;
+                    let kind = varint::get7(&mut reader)?;
+                    let _id = varint::get32(&mut reader)?;
+                    if kind == 0 {
+                        println!("Imported:\t{}#{}", module_name, name);
+                        if module_name == "wasi_snapshot_preview1" {
+                            has_wasi_core_import = true;
+                        }
                     }
                 }
             } else {
                 continue;
             }
         }
-        if has_start && has_wasi_core_import {
-            break;
-        }
     }
-    match (has_start, has_wasi_core_import) {
+    let res = match (has_start, has_wasi_core_import) {
         (true, true) => ModuleType::Command,
         (false, true) => ModuleType::Reactor,
         (false, false) => ModuleType::Freestanding,
         (true, false) => ModuleType::Command,
-    }
+    };
+    Ok(res)
 }
 
 fn main() -> Result<(), Error> {
@@ -107,12 +104,18 @@ fn main() -> Result<(), Error> {
 
     let input_file = matches.get_one::<String>("input").unwrap();
     let output_file = matches.get_one::<String>("output").unwrap();
-    let module_bin = std::fs::read(input_file).unwrap();
+
+    println!("Reading module from:\t[{}]", input_file);
+    let module_bin = std::fs::read(input_file)?;
     let module = {
         let mut reader = Cursor::new(&module_bin);
-        Module::deserialize(&mut reader).unwrap()
+        Module::deserialize(&mut reader)?
     };
-    let module_type = guess_module_type(&module);
+    println!("Module size:\t{} bytes", module_bin.len());
+
+    let module_type = guess_module_type(&module)?;
+    println!("Module type:\t{}", module_type);
+
     static IMPORTED_MODULE_NAME: &str = "wasi_snapshot_preview1";
     let adapter = match module_type {
         ModuleType::Command => include_bytes!(concat!(
@@ -130,16 +133,23 @@ fn main() -> Result<(), Error> {
     };
 
     let component_bin = ComponentEncoder::default()
-        .module(&module_bin)
-        .unwrap()
+        .module(&module_bin)?
         .realloc_via_memory_grow(true)
-        .adapter(IMPORTED_MODULE_NAME, adapter)
-        .unwrap()
+        .adapter(IMPORTED_MODULE_NAME, adapter)?
         .validate(true)
-        .encode()
-        .unwrap();
+        .encode()?;
 
-    let mut fp = File::create(output_file).unwrap();
-    fp.write_all(&component_bin).unwrap();
+    println!("Verifying component");
+    Module::deserialize(&mut Cursor::new(&component_bin))?;
+
+    println!("Writing component to:\t[{}]", output_file);
+    let mut fp = File::create(output_file)?;
+    fp.write_all(&component_bin)?;
+    println!(
+        "Component size:\t{} bytes (overhead: {} bytes)",
+        component_bin.len(),
+        component_bin.len() - module_bin.len()
+    );
+
     Ok(())
 }
