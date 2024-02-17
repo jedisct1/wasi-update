@@ -1,8 +1,9 @@
 bin/wasi-update: .ts wasi-update/src/precomp/wasi_snapshot_preview1.command.wasm wasi-update/src/precomp/wasi_snapshot_preview1.reactor.wasm wasi-update/Cargo.toml wasi-update/src/main.rs
-	cd wasi-update && cargo build --release
+	cd wasi-update && cargo build --release $$CARGO_FLAGS
 	install -d bin
 	install -s -C wasi-update/target/release/wasi-update bin/wasi-update
 	ls -l bin/wasi-update
+	bin/wasi-update --help
 
 wasi-update/src/precomp/wasi_snapshot_preview1.command.wasm: adapters/Cargo.toml adapters/src/descriptors.rs adapters/src/lib.rs adapters/src/macros.rs
 	cd adapters && cargo build --release --no-default-features --target=wasm32-unknown-unknown --features=command
