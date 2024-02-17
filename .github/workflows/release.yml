@@ -47,7 +47,8 @@ jobs:
       - name: Build
         run: |
           make
-          install bin/wasi-update* wasi-update/
+          install -d wasi-update
+          install -bin/wasi-update* wasi-update/
           if [ "${{ matrix.os }}" = "ubuntu-20.04" ]; then
             tar cjpf ${ARCHIVE_PATH} wasi-update
           elif [ "${{ matrix.os }}" = "windows-latest" ]; then
