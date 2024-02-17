@@ -3,10 +3,13 @@ name = "wasi-update"
 version = "0.1.0"
 edition = "2021"
 authors = ["Frank Denis <github@pureftpd.org>"]
-description = "A tool to convert a WebAssembly module to a WASI component"
+description = "A simple tool to convert a WebAssembly module to a WASI component."
 license = "Apache-2.0 WITH LLVM-exception"
 keywords = ["wit", "webassembly", "wasi", "component", "preview2"]
 categories = ["wasm", "web-programming"]
+readme = "README.md"
+repository = "https://github.com/jedisct1/wasi-update"
+homepage = "https://github.com/jedisct1/wasi-update"
 
 [dependencies]
 anyhow = "1.0.79"

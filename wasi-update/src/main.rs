@@ -88,7 +88,7 @@ fn main() -> Result<(), Error> {
                 .long("input")
                 .num_args(1)
                 .value_name("FILE")
-                .help("Input file")
+                .help("Input file (regular module)")
                 .required(true),
         )
         .arg(
@@ -97,7 +97,7 @@ fn main() -> Result<(), Error> {
                 .long("output")
                 .num_args(1)
                 .value_name("FILE")
-                .help("Output file")
+                .help("Output file (component)")
                 .required(true),
         )
         .get_matches();
