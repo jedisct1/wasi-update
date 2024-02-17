@@ -1,10 +1,10 @@
 *~
+.ts
 /target
 Cargo.lock
-byte-array-literals/target
-zig-cache
-zig-cache
-wasi-update/target
 adapters/byte-array-literals/target
 adapters/target
+byte-array-literals/target
 wasi-update/.vscode
+wasi-update/target
+zig-cache
