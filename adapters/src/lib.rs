@@ -13,6 +13,7 @@ use core::ptr::{self, null_mut};
 use core::slice;
 use poll::Pollable;
 use wasi::*;
+use wasix::wasi;
 
 use crate::bindings::wasi::filesystem::types as filesystem;
 
@@ -473,7 +474,7 @@ pub unsafe extern "C" fn fd_allocate(fd: Fd, _offset: Filesize, _len: Filesize) 
             // For not-files, fail with BADF
             ds.get_file(fd)?;
             // For all files, fail with NOTSUP, because this call does not exist in preview 2.
-            Err(wasi::ERRNO_NOTSUP)
+            Err(ERRNO_NOTSUP)
         })
     }
 }
@@ -484,7 +485,7 @@ pub unsafe extern "C" fn fd_allocate(fd: Fd, _offset: Filesize, _len: Filesize) 
 pub unsafe extern "C" fn fd_close(fd: Fd) -> Errno {
     State::with(|state| {
         if let Descriptor::Bad = state.descriptors().get(fd)? {
-            return Err(wasi::ERRNO_BADF);
+            return Err(ERRNO_BADF);
         }
 
         // If there's a dirent cache entry for this file descriptor then drop
@@ -530,40 +531,40 @@ pub unsafe extern "C" fn fd_fdstat_get(fd: Fd, stat: *mut Fdstat) -> Errno {
                     match type_ {
                         filesystem::DescriptorType::Directory => {
                             // Hard-coded set of rights expected by many userlands:
-                            let fs_rights_base = wasi::RIGHTS_PATH_CREATE_DIRECTORY
-                                | wasi::RIGHTS_PATH_CREATE_FILE
-                                | wasi::RIGHTS_PATH_LINK_SOURCE
-                                | wasi::RIGHTS_PATH_LINK_TARGET
-                                | wasi::RIGHTS_PATH_OPEN
-                                | wasi::RIGHTS_FD_READDIR
-                                | wasi::RIGHTS_PATH_READLINK
-                                | wasi::RIGHTS_PATH_RENAME_SOURCE
-                                | wasi::RIGHTS_PATH_RENAME_TARGET
-                                | wasi::RIGHTS_PATH_SYMLINK
-                                | wasi::RIGHTS_PATH_REMOVE_DIRECTORY
-                                | wasi::RIGHTS_PATH_UNLINK_FILE
-                                | wasi::RIGHTS_PATH_FILESTAT_GET
-                                | wasi::RIGHTS_PATH_FILESTAT_SET_TIMES
-                                | wasi::RIGHTS_FD_FILESTAT_GET
-                                | wasi::RIGHTS_FD_FILESTAT_SET_TIMES;
+                            let fs_rights_base = RIGHTS_PATH_CREATE_DIRECTORY
+                                | RIGHTS_PATH_CREATE_FILE
+                                | RIGHTS_PATH_LINK_SOURCE
+                                | RIGHTS_PATH_LINK_TARGET
+                                | RIGHTS_PATH_OPEN
+                                | RIGHTS_FD_READDIR
+                                | RIGHTS_PATH_READLINK
+                                | RIGHTS_PATH_RENAME_SOURCE
+                                | RIGHTS_PATH_RENAME_TARGET
+                                | RIGHTS_PATH_SYMLINK
+                                | RIGHTS_PATH_REMOVE_DIRECTORY
+                                | RIGHTS_PATH_UNLINK_FILE
+                                | RIGHTS_PATH_FILESTAT_GET
+                                | RIGHTS_PATH_FILESTAT_SET_TIMES
+                                | RIGHTS_FD_FILESTAT_GET
+                                | RIGHTS_FD_FILESTAT_SET_TIMES;
 
                             let fs_rights_inheriting = fs_rights_base
-                                | wasi::RIGHTS_FD_DATASYNC
-                                | wasi::RIGHTS_FD_READ
-                                | wasi::RIGHTS_FD_SEEK
-                                | wasi::RIGHTS_FD_FDSTAT_SET_FLAGS
-                                | wasi::RIGHTS_FD_SYNC
-                                | wasi::RIGHTS_FD_TELL
-                                | wasi::RIGHTS_FD_WRITE
-                                | wasi::RIGHTS_FD_ADVISE
-                                | wasi::RIGHTS_FD_ALLOCATE
-                                | wasi::RIGHTS_FD_FILESTAT_GET
-                                | wasi::RIGHTS_FD_FILESTAT_SET_SIZE
-                                | wasi::RIGHTS_FD_FILESTAT_SET_TIMES
-                                | wasi::RIGHTS_POLL_FD_READWRITE;
+                                | RIGHTS_FD_DATASYNC
+                                | RIGHTS_FD_READ
+                                | RIGHTS_FD_SEEK
+                                | RIGHTS_FD_FDSTAT_SET_FLAGS
+                                | RIGHTS_FD_SYNC
+                                | RIGHTS_FD_TELL
+                                | RIGHTS_FD_WRITE
+                                | RIGHTS_FD_ADVISE
+                                | RIGHTS_FD_ALLOCATE
+                                | RIGHTS_FD_FILESTAT_GET
+                                | RIGHTS_FD_FILESTAT_SET_SIZE
+                                | RIGHTS_FD_FILESTAT_SET_TIMES
+                                | RIGHTS_POLL_FD_READWRITE;
 
                             stat.write(Fdstat {
-                                fs_filetype: wasi::FILETYPE_DIRECTORY,
+                                fs_filetype: FILETYPE_DIRECTORY,
                                 fs_flags: 0,
                                 fs_rights_base,
                                 fs_rights_inheriting,
@@ -642,7 +643,7 @@ pub unsafe extern "C" fn fd_fdstat_get(fd: Fd, stat: *mut Fdstat) -> Errno {
 pub unsafe extern "C" fn fd_fdstat_set_flags(fd: Fd, flags: Fdflags) -> Errno {
     // Only support changing the NONBLOCK or APPEND flags.
     if flags & !(FDFLAGS_NONBLOCK | FDFLAGS_APPEND) != 0 {
-        return wasi::ERRNO_INVAL;
+        return ERRNO_INVAL;
     }
 
     cfg_filesystem_available! {
@@ -653,7 +654,7 @@ pub unsafe extern "C" fn fd_fdstat_set_flags(fd: Fd, flags: Fdflags) -> Errno {
                     type_: StreamType::File(file),
                     ..
                 }) if !file.is_dir() => file,
-                _ => Err(wasi::ERRNO_BADF)?,
+                _ => Err(ERRNO_BADF)?,
             };
             file.append = flags & FDFLAGS_APPEND == FDFLAGS_APPEND;
             file.blocking_mode = if flags & FDFLAGS_NONBLOCK == FDFLAGS_NONBLOCK {
@@ -677,7 +678,7 @@ pub unsafe extern "C" fn fd_fdstat_set_rights(
         let ds = state.descriptors();
         match ds.get(fd)? {
             Descriptor::Streams(..) => Ok(()),
-            Descriptor::Closed(..) | Descriptor::Bad => Err(wasi::ERRNO_BADF),
+            Descriptor::Closed(..) | Descriptor::Bad => Err(ERRNO_BADF),
         }
     })
 }
@@ -725,7 +726,7 @@ pub unsafe extern "C" fn fd_filestat_get(fd: Fd, buf: *mut Filestat) -> Errno {
                     };
                     Ok(())
                 }
-                _ => Err(wasi::ERRNO_BADF),
+                _ => Err(ERRNO_BADF),
             }
         })
     }
@@ -747,7 +748,7 @@ pub unsafe extern "C" fn fd_filestat_set_size(fd: Fd, size: Filesize) -> Errno {
 
 fn systimespec(set: bool, ts: Timestamp, now: bool) -> Result<filesystem::NewTimestamp, Errno> {
     if set && now {
-        Err(wasi::ERRNO_INVAL)
+        Err(ERRNO_INVAL)
     } else if set {
         Ok(filesystem::NewTimestamp::Timestamp(filesystem::Datetime {
             seconds: ts / 1_000_000_000,
@@ -1063,7 +1064,7 @@ pub unsafe extern "C" fn fd_readdir(
             None => {
                 iter = DirectoryEntryIterator {
                     state,
-                    cookie: wasi::DIRCOOKIE_START,
+                    cookie: DIRCOOKIE_START,
                     use_cache: false,
                     stream: DirectoryEntryStream(dir.fd.read_directory()?),
                     dir_descriptor: &dir.fd,
@@ -1071,7 +1072,7 @@ pub unsafe extern "C" fn fd_readdir(
 
                 // Skip to the entry that is requested by the `cookie`
                 // parameter.
-                for _ in wasi::DIRCOOKIE_START..cookie {
+                for _ in DIRCOOKIE_START..cookie {
                     match iter.next() {
                         Some(Ok(_)) => {}
                         Some(Err(e)) => return Err(e),
@@ -1090,10 +1091,8 @@ pub unsafe extern "C" fn fd_readdir(
 
             // Copy a `dirent` describing this entry into the destination `buf`,
             // truncating it if it doesn't fit entirely.
-            let bytes = slice::from_raw_parts(
-                (&dirent as *const wasi::Dirent).cast::<u8>(),
-                size_of::<Dirent>(),
-            );
+            let bytes =
+                slice::from_raw_parts((&dirent as *const Dirent).cast::<u8>(), size_of::<Dirent>());
             let dirent_bytes_to_copy = buf.len().min(bytes.len());
             buf[..dirent_bytes_to_copy].copy_from_slice(&bytes[..dirent_bytes_to_copy]);
             buf = &mut buf[dirent_bytes_to_copy..];
@@ -1151,7 +1150,7 @@ pub unsafe extern "C" fn fd_readdir(
     impl<'a> Iterator for DirectoryEntryIterator<'a> {
         // Note the usage of `UnsafeCell<u8>` here to indicate that the data can
         // alias the storage within `state`.
-        type Item = Result<(wasi::Dirent, &'a [UnsafeCell<u8>]), Errno>;
+        type Item = Result<(Dirent, &'a [UnsafeCell<u8>]), Errno>;
 
         fn next(&mut self) -> Option<Self::Item> {
             let current_cookie = self.cookie;
@@ -1166,19 +1165,19 @@ pub unsafe extern "C" fn fd_readdir(
                         Ok(h) => h,
                         Err(e) => return Some(Err(e.into())),
                     };
-                    let dirent = wasi::Dirent {
+                    let dirent = Dirent {
                         d_next: self.cookie,
                         d_ino: metadata_hash.lower,
-                        d_type: wasi::FILETYPE_DIRECTORY,
+                        d_type: FILETYPE_DIRECTORY,
                         d_namlen: 1,
                     };
                     return Some(Ok((dirent, &self.state.dotdot[..1])));
                 }
                 1 => {
-                    let dirent = wasi::Dirent {
+                    let dirent = Dirent {
                         d_next: self.cookie,
                         d_ino: 0,
-                        d_type: wasi::FILETYPE_DIRECTORY,
+                        d_type: FILETYPE_DIRECTORY,
                         d_namlen: 2,
                     };
                     return Some(Ok((dirent, &self.state.dotdot[..])));
@@ -1215,7 +1214,7 @@ pub unsafe extern "C" fn fd_readdir(
                 .map(|h| h.lower)
                 .unwrap_or(0);
             let name = ManuallyDrop::new(name);
-            let dirent = wasi::Dirent {
+            let dirent = Dirent {
                 d_next: self.cookie,
                 d_ino,
                 d_namlen: u32::try_from(name.len()).trapping_unwrap(),
@@ -1531,7 +1530,7 @@ pub unsafe extern "C" fn path_open(
         let at_flags = at_flags_from_lookupflags(dirflags);
         let o_flags = o_flags_from_oflags(oflags);
         let flags = descriptor_flags_from_flags(fs_rights_base, fdflags);
-        let append = fdflags & wasi::FDFLAGS_APPEND == wasi::FDFLAGS_APPEND;
+        let append = fdflags & FDFLAGS_APPEND == FDFLAGS_APPEND;
 
         State::with(|state| {
             let result = state
@@ -1548,7 +1547,7 @@ pub unsafe extern "C" fn path_open(
                     descriptor_type,
                     position: Cell::new(0),
                     append,
-                    blocking_mode: if fdflags & wasi::FDFLAGS_NONBLOCK == 0 {
+                    blocking_mode: if fdflags & FDFLAGS_NONBLOCK == 0 {
                         BlockingMode::Blocking
                     } else {
                         BlockingMode::NonBlocking
@@ -1973,7 +1972,7 @@ pub unsafe extern "C" fn proc_exit(rval: Exitcode) -> ! {
 /// Note: This is similar to `raise` in POSIX.
 #[no_mangle]
 pub unsafe extern "C" fn proc_raise(_sig: Signal) -> Errno {
-    unreachable!()
+    unimplemented!()
 }
 
 /// Temporarily yield execution of the calling thread.
@@ -2019,7 +2018,7 @@ pub unsafe extern "C" fn random_get(buf: *mut u8, buf_len: Size) -> Errno {
 /// Note: This is similar to `accept` in POSIX.
 #[no_mangle]
 pub unsafe extern "C" fn sock_accept(_fd: Fd, _flags: Fdflags, _connection: *mut Fd) -> Errno {
-    unreachable!()
+    todo!()
 }
 
 /// Receive a message from a socket.
@@ -2034,7 +2033,7 @@ pub unsafe extern "C" fn sock_recv(
     _ro_datalen: *mut Size,
     _ro_flags: *mut Roflags,
 ) -> Errno {
-    unreachable!()
+    todo!()
 }
 
 /// Send a message on a socket.
@@ -2048,14 +2047,14 @@ pub unsafe extern "C" fn sock_send(
     _si_flags: Siflags,
     _so_datalen: *mut Size,
 ) -> Errno {
-    unreachable!()
+    todo!()
 }
 
 /// Shut down socket send and receive channels.
 /// Note: This is similar to `shutdown` in POSIX.
 #[no_mangle]
 pub unsafe extern "C" fn sock_shutdown(_fd: Fd, _how: Sdflags) -> Errno {
-    unreachable!()
+    todo!()
 }
 
 fn datetime_to_timestamp(datetime: Option<filesystem::Datetime>) -> Timestamp {
@@ -2093,19 +2092,19 @@ fn o_flags_from_oflags(flags: Oflags) -> filesystem::OpenFlags {
 
 fn descriptor_flags_from_flags(rights: Rights, fdflags: Fdflags) -> filesystem::DescriptorFlags {
     let mut flags = filesystem::DescriptorFlags::empty();
-    if rights & wasi::RIGHTS_FD_READ == wasi::RIGHTS_FD_READ {
+    if rights & RIGHTS_FD_READ == RIGHTS_FD_READ {
         flags |= filesystem::DescriptorFlags::READ;
     }
-    if rights & wasi::RIGHTS_FD_WRITE == wasi::RIGHTS_FD_WRITE {
+    if rights & RIGHTS_FD_WRITE == RIGHTS_FD_WRITE {
         flags |= filesystem::DescriptorFlags::WRITE;
     }
-    if fdflags & wasi::FDFLAGS_SYNC == wasi::FDFLAGS_SYNC {
+    if fdflags & FDFLAGS_SYNC == FDFLAGS_SYNC {
         flags |= filesystem::DescriptorFlags::FILE_INTEGRITY_SYNC;
     }
-    if fdflags & wasi::FDFLAGS_DSYNC == wasi::FDFLAGS_DSYNC {
+    if fdflags & FDFLAGS_DSYNC == FDFLAGS_DSYNC {
         flags |= filesystem::DescriptorFlags::DATA_INTEGRITY_SYNC;
     }
-    if fdflags & wasi::FDFLAGS_RSYNC == wasi::FDFLAGS_RSYNC {
+    if fdflags & FDFLAGS_RSYNC == FDFLAGS_RSYNC {
         flags |= filesystem::DescriptorFlags::REQUESTED_WRITE_SYNC;
     }
     flags
@@ -2158,8 +2157,8 @@ impl From<filesystem::ErrorCode> for Errno {
     }
 }
 
-impl From<filesystem::DescriptorType> for wasi::Filetype {
-    fn from(ty: filesystem::DescriptorType) -> wasi::Filetype {
+impl From<filesystem::DescriptorType> for Filetype {
+    fn from(ty: filesystem::DescriptorType) -> Filetype {
         match ty {
             filesystem::DescriptorType::RegularFile => FILETYPE_REGULAR_FILE,
             filesystem::DescriptorType::Directory => FILETYPE_DIRECTORY,
@@ -2169,7 +2168,7 @@ impl From<filesystem::DescriptorType> for wasi::Filetype {
             filesystem::DescriptorType::Fifo => FILETYPE_UNKNOWN,
             // TODO: Add a way to disginguish between FILETYPE_SOCKET_STREAM and
             // FILETYPE_SOCKET_DGRAM.
-            filesystem::DescriptorType::Socket => unreachable!(),
+            filesystem::DescriptorType::Socket => todo!(),
             filesystem::DescriptorType::SymbolicLink => FILETYPE_SYMBOLIC_LINK,
             filesystem::DescriptorType::Unknown => FILETYPE_UNKNOWN,
         }
@@ -2346,9 +2345,9 @@ struct State {
 
 struct DirentCache {
     stream: Cell<Option<DirectoryEntryStream>>,
-    for_fd: Cell<wasi::Fd>,
-    cookie: Cell<wasi::Dircookie>,
-    cached_dirent: Cell<wasi::Dirent>,
+    for_fd: Cell<Fd>,
+    cookie: Cell<Dircookie>,
+    cached_dirent: Cell<Dirent>,
     path_data: UnsafeCell<MaybeUninit<[u8; DIRENT_CACHE]>>,
 }
 
@@ -2505,8 +2504,8 @@ impl State {
             dirent_cache: DirentCache {
                 stream: Cell::new(None),
                 for_fd: Cell::new(0),
-                cookie: Cell::new(wasi::DIRCOOKIE_START),
-                cached_dirent: Cell::new(wasi::Dirent {
+                cookie: Cell::new(DIRCOOKIE_START),
+                cached_dirent: Cell::new(Dirent {
                     d_next: 0,
                     d_ino: 0,
                     d_type: FILETYPE_UNKNOWN,

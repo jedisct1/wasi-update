@@ -4,6 +4,7 @@ use crate::{BlockingMode, BumpArena, ImportAlloc, TrappingUnwrap, WasmStr};
 use core::cell::{Cell, OnceCell, UnsafeCell};
 use core::mem::MaybeUninit;
 use wasi::{Errno, Fd};
+use wasix::wasi;
 
 #[cfg(not(feature = "proxy"))]
 use crate::bindings::wasi::filesystem::types as filesystem;
