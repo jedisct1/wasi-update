@@ -1,6 +1,6 @@
 [package]
 name = "wasi-update"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["Frank Denis <github@pureftpd.org>"]
 description = "A simple tool to convert a WebAssembly module to a WASI component."
