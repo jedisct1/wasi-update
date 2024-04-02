@@ -12,7 +12,7 @@ repository = "https://github.com/jedisct1/wasi-update"
 homepage = "https://github.com/jedisct1/wasi-update"
 
 [dependencies]
-anyhow = "1.0.79"
+anyhow = "1.0.81"
 clap = { version = "4", features = ["std", "cargo", "wrap_help", "string"] }
 ct-codecs = "1"
 log = "0.4"
