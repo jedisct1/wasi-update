@@ -2,7 +2,7 @@
 edition = "2021"
 name = "wasi-compat-adapter"
 license = "Apache-2.0 WITH LLVM-exception"
-version = "0.1.0"
+version = "0.1.1"
 publish = false
 
 [dependencies]
