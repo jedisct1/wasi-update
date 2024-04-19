@@ -20,7 +20,7 @@ wit-parser = { version = "0.205.0", features = ['decoding', 'serde'] }
 anyhow = "1.0.82"
 log = "0.4.21"
 bitflags = "2.5.0"
-indexmap = "*"
+indexmap = "2.2.6"
 wast = { version = "205.0.0", optional = true }
 wat = { version = "1.205.0", optional = true }
 serde = "1.0.198"
