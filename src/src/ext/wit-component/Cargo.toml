@@ -1,6 +1,6 @@
 [package]
 edition = "2021"
-name = "wit-component"
+name = "wit-component-update"
 authors = ["Peter Huene <peter@huene.dev>"]
 license = "Apache-2.0 WITH LLVM-exception"
 readme = "README.md"
@@ -10,6 +10,7 @@ documentation = "https://docs.rs/wit-component"
 description = """
 Tooling for working with `*.wit` and component files together.
 """
+version = "0.205.0"
 
 [dependencies]
 wasmparser = "0.205.0"
