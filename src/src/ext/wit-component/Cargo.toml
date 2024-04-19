@@ -1,0 +1,39 @@
+[package]
+edition = "2021"
+name = "wit-component"
+authors = ["Peter Huene <peter@huene.dev>"]
+license = "Apache-2.0 WITH LLVM-exception"
+readme = "README.md"
+repository = "https://github.com/bytecodealliance/wasm-tools/tree/main/crates/wit-component"
+homepage = "https://github.com/bytecodealliance/wasm-tools/tree/main/crates/wit-component"
+documentation = "https://docs.rs/wit-component"
+description = """
+Tooling for working with `*.wit` and component files together.
+"""
+
+[dependencies]
+wasmparser = "0.205.0"
+wasm-encoder = "0.205.0"
+wasm-metadata = "0.205.0"
+wit-parser = { version = "0.205.0", features = ['decoding', 'serde'] }
+anyhow = "1.0.82"
+log = "0.4.21"
+bitflags = "2.5.0"
+indexmap = "*"
+wast = { version = "205.0.0", optional = true }
+wat = { version = "1.205.0", optional = true }
+serde = "1.0.198"
+serde_derive = "1.0.198"
+serde_json = "1.0.116"
+
+[dev-dependencies]
+wasmprinter = "0.205.0"
+glob = "0.3.1"
+pretty_assertions = "1.4.0"
+env_logger = "0.11.3"
+wat = "1.205.0"
+
+[features]
+dummy-module = ['dep:wat']
+wat = ['dep:wast', 'dep:wat']
+semver-check = ['dummy-module']

@@ -17,7 +17,7 @@ clap = { version = "4", features = ["std", "cargo", "wrap_help", "string"] }
 ct-codecs = "1"
 log = "0.4"
 thiserror = "1"
-wit-component = "0.205"
+wit-component = { path = "src/ext/wit-component" }
 
 [package.metadata.deb]
 extended-description = """\
