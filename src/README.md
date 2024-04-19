@@ -8,12 +8,14 @@ A simple tool to convert a WebAssembly module (`wasm32-wasi`, `wasm32-freestandi
 Install Rust, and type:
 
 ```sh
+rustup target add wasm32-unknown-unknown
 cargo install wasi-update
 ```
 
 or clone the repository and type:
 
 ```sh
+rustup target add wasm32-unknown-unknown
 make
 ```
 
