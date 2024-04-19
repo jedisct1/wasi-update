@@ -19,7 +19,8 @@ src/src/precomp/wasi_snapshot_preview1.reactor.wasm: adapters/Cargo.toml adapter
 clean:
 	rm -fr adapters/byte-array-literals/target
 	rm -fr adapters/target
-	rm -fr src/target
+	rm -fr src/src/ext/wit-component/target
+	rm -fr src/target    
 	rm -f bin/wasi-update
 	touch */Cargo.toml
 
