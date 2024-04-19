@@ -7,14 +7,14 @@ publish = false
 
 [dependencies]
 wasix = { version = "0.12.21", default-features = false }
-wit-bindgen = { version = "0.18.0", default-features = false, features = [
+wit-bindgen = { version = "0.24.0", default-features = false, features = [
     "macros",
 ] }
 byte-array-literals = { path = "byte-array-literals" }
 
 [build-dependencies]
-wasm-encoder = "0.200"
-object = { version = "0.32", default-features = false, features = ["archive"] }
+wasm-encoder = "0.205"
+object = { version = "0.35", default-features = false, features = ["archive"] }
 
 [lib]
 test = false
