@@ -21,7 +21,6 @@ clean-app:
 	rm -f bin/wasi-update
 	touch */Cargo.toml
 
-
 clean: clean-app
 	rm -fr adapters/byte-array-literals/target
 	rm -fr adapters/target
