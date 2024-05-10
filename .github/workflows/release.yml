@@ -10,17 +10,32 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-20.04, windows-latest]
+        os: [ubuntu-20.04, windows-latest, macos-latest]
         include:
           - os: ubuntu-20.04
             target: x86_64-unknown-linux-gnu
             target_alias: linux-x86_64
             bin_suffix: ''
             archive_suffix: '.tar.bz2'
+          - os: ubuntu-20.04
+            target: aarch64-unknown-linux-gnu
+            target_alias: linux-aarch64
+            bin_suffix: ''
+            archive_suffix: '.tar.bz2'            
           - os: windows-latest
             target: x86_64-pc-windows-msvc
-            target_alias: win-x86_64-msvc
+            target_alias: win-x86_64
             bin_suffix: '.exe'
+            archive_suffix: '.zip'
+          - os: windows-latest
+            target: aarch64-pc-windows-msvc
+            target_alias: win-aarch64
+            bin_suffix: '.exe'
+            archive_suffix: '.zip'          
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            target_alias: macos-aarch64
+            bin_suffix: ''
             archive_suffix: '.zip'
     defaults:
       run:
@@ -80,7 +95,7 @@ jobs:
       - uses: actions/download-artifact@v4
 
       - name: Create release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -90,4 +105,7 @@ jobs:
           files: |
             wasi-update_deb-amd64/*.deb
             wasi-update_linux-x86_64/*.tar.bz2
-            wasi-update_win-x86_64-msvc/*.zip
+            wasi-update_linux-aarch64/*.tar.bz2
+            wasi-update_win-x86_64/*.zip
+            wasi-update_win-aarch64/*.zip
+            wasi-update_macos-aarch64/*.zip
