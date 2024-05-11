@@ -14,12 +14,6 @@ A simple tool to convert a WebAssembly module (`wasm32-wasi`, `wasm32-freestandi
 - Windows/aarch64
 - WebAssembly (WASI)
 
-Or if you really want to compile from source, install Rust and type:
-
-```sh
-rustup target add wasm32-unknown-unknown
-cargo install wasi-update
-```
 
 # Usage
 
@@ -29,4 +23,13 @@ Example:
 
 ```sh
 wasi-update -i module.wasm -o component.wasm
+```
+
+# Compilation from source
+
+Or if you really want to compile from source, install Rust and type:
+
+```sh
+rustup target add wasm32-unknown-unknown
+cargo install wasi-update
 ```
