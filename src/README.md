@@ -25,14 +25,8 @@ cargo install wasi-update
 
 Give the tool the WebAssembly module to process, and output file name, and that's it!
 
-```text
-A simple tool to convert a WebAssembly module to a WASI component.
+Example:
 
-Usage: wasi-update --input <FILE> --output <FILE>
-
-Options:
-  -i, --input <FILE>   Input file (regular module)
-  -o, --output <FILE>  Output file (component)
-  -h, --help           Print help
-  -V, --version        Print version
+```sh
+wasi-update -i module.wasm -o component.wasm
 ```
